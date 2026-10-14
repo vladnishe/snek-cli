@@ -1,13 +1,17 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log/slog"
+	"math"
 	"os"
 
 	"github.com/vladnishe/snek-cli/internal/config"
-	"github.com/vladnishe/snek-cli/internal/weather/util"
+	"github.com/vladnishe/snek-cli/internal/gemini"
+	"github.com/vladnishe/snek-cli/internal/weather"
+	"github.com/vladnishe/snek-cli/internal/weather/validator"
 )
 
 const (
@@ -24,12 +28,24 @@ func main() {
 
 	log := setupLogger(cfg.Env)
 
-	if err := util.ValidateCity(city); err != nil {
+	if err := validator.ValidateCity(city); err != nil {
 		log.Error(err.Error())
 		os.Exit(1)
 	}
 
+	log.Debug("initializing gemini and weather clients...")
+	_ = gemini.New(cfg.GeminiAPIKey, cfg.GeminiAPIBaseURL)
+	wClient := weather.New(cfg.WeatherAPIKey, cfg.WeatherAPIBaseURL)
+
 	fmt.Printf("Requesting weather forecast for: %s....\n", city)
+	forecast, err := wClient.GetWeather(context.Background(), city)
+	if err != nil {
+		log.Error("failed to get forecast: ", "err", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("The weather in %s: %.0f, %s\n", city, math.Floor(forecast.Main.Temp), forecast.Weather[0].Description)
+
 }
 
 func setupLogger(env string) *slog.Logger {
