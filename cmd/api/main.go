@@ -8,8 +8,8 @@ import (
 	"math"
 	"os"
 
+	"github.com/vladnishe/snek-cli/internal/ai"
 	"github.com/vladnishe/snek-cli/internal/config"
-	"github.com/vladnishe/snek-cli/internal/gemini"
 	"github.com/vladnishe/snek-cli/internal/weather"
 	"github.com/vladnishe/snek-cli/internal/weather/validator"
 )
@@ -22,6 +22,7 @@ const (
 func main() {
 	var city string
 	flag.StringVar(&city, "city", "", "city for weather forecast")
+	askAdvice := flag.Bool("advice", false, "ask advice for a day")
 	flag.Parse()
 
 	cfg := config.MustLoad()
@@ -34,7 +35,7 @@ func main() {
 	}
 
 	log.Debug("initializing gemini and weather clients...")
-	_ = gemini.New(cfg.GeminiAPIKey, cfg.GeminiAPIBaseURL)
+	aiClient := ai.New(cfg.GROQAPIKey, cfg.GROQAPIBaseURL, cfg.GroqModel)
 	wClient := weather.New(cfg.WeatherAPIKey, cfg.WeatherAPIBaseURL)
 
 	fmt.Printf("Requesting weather forecast for: %s....\n", city)
@@ -44,8 +45,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("The weather in %s: %.0f, %s\n", city, math.Floor(forecast.Main.Temp), forecast.Weather[0].Description)
-
+	if *askAdvice {
+		advice, err := aiClient.GetAdviceForWeather(context.Background(), city, forecast.Weather[0].Description, forecast.Main.Temp, forecast.Wind.Speed)
+		if err != nil {
+			log.Error("failed to get advice: ", "err", err)
+		}
+		fmt.Println(advice)
+	} else {
+		fmt.Printf("The weather in %s: %.0f, %s\n", city, math.Floor(forecast.Main.Temp), forecast.Weather[0].Description)
+	}
 }
 
 func setupLogger(env string) *slog.Logger {

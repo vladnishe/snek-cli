@@ -9,15 +9,16 @@ import (
 
 const (
 	DefaultWeatherAPIBaseURL = "https://api.openweathermap.org/data/2.5"
-	DefaultGeminiAPIBaseURL  = "https://generativelanguage.googleapis.com/v1beta"
+	DefaultGroqAPIBaseURL    = "https://api.groq.com/openai/v1"
 )
 
 type Config struct {
 	Env               string `env:"ENV"`
-	GeminiAPIKey      string `env:"GEMINI_API_KEY"`
+	GROQAPIKey        string `env:"GROQ_API_KEY"`
+	GroqModel         string `env:"GROQ_MODEL"`
 	WeatherAPIKey     string `env:"WEATHER_API_KEY"`
 	WeatherAPIBaseURL string `env:"WEATHER_BASE_URL"`
-	GeminiAPIBaseURL  string `env:"GEMINI_BASE_URL"`
+	GROQAPIBaseURL    string `env:"GROQ_BASE_URL"`
 }
 
 func MustLoad() *Config {
@@ -25,10 +26,11 @@ func MustLoad() *Config {
 
 	return &Config{
 		Env:               getEnv("ENV", "prod"),
-		GeminiAPIKey:      getApiEnv("GEMINI_API_KEY"),
+		GROQAPIKey:        getApiEnv("GROQ_API_KEY"),
+		GroqModel:         getEnv("GROQ_MODEL", "openai/gpt-oss-120b"),
 		WeatherAPIKey:     getApiEnv("WEATHER_API_KEY"),
 		WeatherAPIBaseURL: getEnv("WEATHER_BASE_URL", DefaultWeatherAPIBaseURL),
-		GeminiAPIBaseURL:  getEnv("GEMINI_BASE_URL", DefaultGeminiAPIBaseURL),
+		GROQAPIBaseURL:    getEnv("GROQ_BASE_URL", DefaultGroqAPIBaseURL),
 	}
 }
 
