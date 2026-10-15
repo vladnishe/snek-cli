@@ -46,7 +46,15 @@ func main() {
 	}
 
 	if *askAdvice {
-		advice, err := aiClient.GetAdviceForWeather(context.Background(), city, forecast.Weather[0].Description, forecast.Main.Temp, forecast.Wind.Speed)
+		advice, err := aiClient.GetAdviceForWeather(
+			context.Background(),
+			city,
+			forecast.Weather[0].Description,
+			forecast.Main.Temp,
+			forecast.Wind.Speed,
+			forecast.Rain.Precipation,
+			forecast.Clouds.Percentage,
+		)
 		if err != nil {
 			log.Error("failed to get advice: ", "err", err)
 		}

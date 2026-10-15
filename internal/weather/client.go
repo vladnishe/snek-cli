@@ -23,8 +23,9 @@ func New(apiKey, baseUrl string) *Client {
 }
 
 func (c *Client) GetWeather(ctx context.Context, city string) (*WeatherResponse, error) {
+	//TODO: fix for cities with multiple words
 	reqUrl := fmt.Sprintf("%s/weather?q=%s&appid=%s&units=metric", c.baseUrl, city, c.apiKey)
-
+	fmt.Println(reqUrl)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqUrl, nil)
 	if err != nil {
 		return nil, err

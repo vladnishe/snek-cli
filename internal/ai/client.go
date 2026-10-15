@@ -25,7 +25,7 @@ func New(apiKey, baseUrl, model string) *Client {
 	}
 }
 
-func (c *Client) GetAdviceForWeather(ctx context.Context, city string, desc string, temp, wind float64) (string, error) {
+func (c *Client) GetAdviceForWeather(ctx context.Context, city string, desc string, temp, wind, rain float64, clouds uint32) (string, error) {
 	reqURL := fmt.Sprintf("%s/chat/completions", c.baseUrl)
 
 	reqBody := ChatCompletionRequest{
@@ -34,11 +34,13 @@ func (c *Client) GetAdviceForWeather(ctx context.Context, city string, desc stri
 			{
 				Role: "user",
 				Content: fmt.Sprintf(
-					"Give me advice about weather in %s. Temperature: %f, conditions: %s, wind: %f. Maximum 2 sentences. Advice what to wear and Be friendly and say in Russian.",
+					"Give me advice about weather in %s. Temperature: %f, conditions: %s, wind: %f, clouds: %d, rain: %f. Maximum 2 sentences. Advice what to wear and Be friendly and say in Russian.",
 					city,
 					temp,
 					desc,
 					wind,
+					clouds,
+					rain,
 				),
 			},
 		},
